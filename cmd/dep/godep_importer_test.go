@@ -119,7 +119,7 @@ func TestGodepConfig_ConvertProject(t *testing.T) {
 				ImportPath: "github.com/sdboyer/deptest",
 				// This revision has 2 versions attached to it, v1.0.0 & v0.8.0.
 				Rev:     "ff2948a2ac8f538c4ecd55962e919d1e13e74baf",
-				Comment: "v0.8.0",
+				Comment: "v0.8.0-g0876266",
 			},
 		},
 	}

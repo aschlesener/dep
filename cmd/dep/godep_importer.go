@@ -10,7 +10,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 
+	"github.com/Masterminds/semver"
 	"github.com/golang/dep"
 	fb "github.com/golang/dep/internal/feedback"
 	"github.com/golang/dep/internal/gps"
@@ -140,6 +142,19 @@ func (g *godepImporter) convert(pr gps.ProjectRoot) (*dep.Manifest, *dep.Lock, e
 
 		if pkg.Comment != "" {
 			// If there's a comment, use it to create project constraint
+			commentLen := len(pkg.Comment)
+			isHashSuffix := regexp.MustCompile(`^-g[A-Za-z0-9]+$`).MatchString
+
+			if commentLen > 9 && isHashSuffix(pkg.Comment[commentLen-9:commentLen]) {
+				// String ends with hash, check first part for valid semver
+				firstPart := pkg.Comment[:commentLen-9]
+				_, err := semver.NewConstraint(firstPart)
+				if err == nil {
+					// Valid semver, use comment without hash as constraint
+					pkg.Comment = firstPart
+				}
+			}
+
 			pc, err := g.buildProjectConstraint(pkg)
 			if err != nil {
 				return nil, nil, err
